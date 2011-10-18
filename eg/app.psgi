@@ -1,3 +1,8 @@
+#!perl
+
+# usage:
+# $ HATENA_CONSUMER_KEY=... HATENA_CONSUMER_SECRET=... plackup eg/app.psgi
+
 use strict;
 use warnings;
 use utf8;
@@ -28,7 +33,7 @@ get '/' => sub {
 
 get '/logout' => sub {
     my ($c) = @_;
-    $c->session->expire();
+    $c->session->expire;
     $c->redirect('/');
 };
 
@@ -40,6 +45,7 @@ __PACKAGE__->load_plugin('Web::Auth', {
     },
     on_finished => sub {
         my ($c, $token, $token_secret, $user) = @_;
+
         $c->session->set(auth_hatena => {
             user         => $user,
             token        => $token,
@@ -52,7 +58,7 @@ __PACKAGE__->load_plugin('Web::Auth', {
 
 builder {
     enable 'Plack::Middleware::Session';
-    __PACKAGE__->to_app();
+    __PACKAGE__->to_app;
 };
 
 __DATA__
@@ -61,7 +67,7 @@ __DATA__
 <!doctype html>
 <html>
 <head>
-  <met charst="utf-8">
+  <meta charst="utf-8">
   <title>MyApp</title>
 </head>
 <body>

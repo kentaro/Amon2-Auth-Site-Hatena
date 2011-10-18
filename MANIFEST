@@ -1,5 +1,6 @@
 .gitignore
 Changes
+eg/app.psgi
 inc/Module/Install.pm
 inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
@@ -12,6 +13,7 @@ inc/Module/Install/WriteAll.pm
 lib/Amon2/Auth.pm
 lib/Amon2/Auth/Site/Facebook.pm
 lib/Amon2/Auth/Site/Github.pm
+lib/Amon2/Auth/Site/Hatena.pm
 lib/Amon2/Auth/Site/Loctouch.pm
 lib/Amon2/Auth/Site/Twitter.pm
 lib/Amon2/Auth/Util.pm

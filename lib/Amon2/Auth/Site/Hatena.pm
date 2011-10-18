@@ -1,17 +1,11 @@
-use strict;
-use warnings;
-use utf8;
-
 package Amon2::Auth::Site::Hatena;
 use Mouse;
 
 use JSON;
-use Amon2::Auth;
+use OAuth::Lite::Token;
 use OAuth::Lite::Consumer;
 
 our $VERSION = '0.01';
-
-sub moniker { 'hatena' }
 
 has consumer_key => (
     is       => 'ro',
@@ -88,6 +82,11 @@ has redirect_url => (
     isa => 'Str',
 );
 
+no Mouse;
+__PACKAGE__->meta->make_immutable;
+
+sub moniker { 'hatena' }
+
 sub auth_uri {
     my ($self, $c, $callback_uri) = @_;
 
@@ -96,7 +95,11 @@ sub auth_uri {
         scope        => join(',', @{$self->scope}),
     ) or die $self->ua->errstr;
 
-    $c->session->set(auth_hatena => $request_token);
+    $c->session->set(auth_hatena => {
+        request_token        => $request_token->token,
+        request_token_secret => $request_token->secret,
+    });
+
     $self->ua->url_to_authorize(token => $request_token);
 }
 
@@ -106,17 +109,27 @@ sub callback {
 
     my $verifier = $c->req->param('oauth_verifier')
         or return $error->("Cannot get a `oauth_verifier' parameter");
-    my $token = $c->session->get('auth_hatena')
-        or return $error->("Request tokens are required");
+
+    my $session      = $c->session->get('auth_hatena') || {};
+    my $token        = $session->{request_token};
+    my $token_secret = $session->{request_token_secret};
+
+    return $error->('request_token, request_token_secret are both required')
+        if (!$token || !$token_secret);
+
+    my $request_token = OAuth::Lite::Token->new(
+        token  => $token,
+        secret => $token_secret,
+    );
     my $access_token = $self->ua->get_access_token(
-        token    => $token,
+        token    => $request_token,
         verifier => $verifier,
     ) or return $error->($self->ua->errstr);
 
     my @args = ($access_token->token, $access_token->secret);
 
     if ($self->user_info) {
-        my $res  = $self->ua->get($self->user_info_url);
+        my $res = $self->ua->get($self->user_info_url);
         return $error->($self->ua->errstr) if $res->is_error;
 
         my $data = decode_json($res->decoded_content);
@@ -126,16 +139,29 @@ sub callback {
     $callback->{on_finished}->(@args);
 }
 
-1;
+!!1;
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
-Amon2::Auth::Site::Hatena - Hatena Auth integration for Amon2
+Amon2::Auth::Site::Hatena - Hatena auth integration for Amon2
 
 =head1 SYNOPSIS
 
+    # config
+    +{
+        Auth => {
+            Hatena => {
+                consumer_key    => 'your consumer key',
+                consumer_secret => 'your consumer secret',
+            }
+        }
+    }
+
+    # app
     __PACKAGE__->load_plugin('Web::Auth', {
         module   => 'Hatena',
         on_error => sub {
@@ -161,28 +187,26 @@ Amon2::Auth::Site::Hatena - Hatena Auth integration for Amon2
 
 =head1 DESCRIPTION
 
-This is a Hatena authentication module for Amon2. You can call a
-Hatena APIs with this module.
+This is a Hatena authentication module for Amon2. You can easily let
+users authenticate via Hatena OAuth API using this module.
 
 =head1 ATTRIBUTES
 
 =over 4
 
-=item consumer_key
+=item consumer_key (required)
 
-=item comsumer_secret
+=item comsumer_secret (required)
 
-=item scope
+=item scope (Default: [qw(read_public)])
 
 API scope in ArrayRef.
 
-=item user_info(Default: true)
+=item user_info (Default: true)
 
-Fetch user information after authenticate?
+If true, this module fetch user data immediately after authentication.
 
-=item ua(instance of OAuth::Lite)
-
-You can replace instance of L<OAuth::Lite>.
+=item ua (Default: instance of OAuth::Lite::Consumer)
 
 =back
 
@@ -190,7 +214,7 @@ You can replace instance of L<OAuth::Lite>.
 
 =over 4
 
-=item $auth->auth_uri($c:Amon2::Web, $callback_uri : Str) : Str
+=item $auth->auth_uri($c:Amon2::Web, $callback_uri:Str) : Str
 
 Get a authenticate URI.
 
@@ -198,13 +222,11 @@ Get a authenticate URI.
 
 Process the authentication callback dispatching.
 
-C<< $callback >> MUST have two keys.
-
 =over 4
 
-=item on_error
+=item * on_error
 
-on_error callback function is called if an error was occurred.
+I<on_error> callback function is called if an error was occurred.
 
 The arguments are following:
 
@@ -213,9 +235,10 @@ The arguments are following:
         ...
     }
 
-=item on_finished
+=item * on_finished
 
-on_finished callback function is called if an authentication was finished.
+I<on_finished> callback function is called if an authentication was
+finished.
 
 The arguments are following:
 
@@ -224,10 +247,34 @@ The arguments are following:
         ...
     }
 
-C<< $user >> contains user information. This code contains a information like L<https://api.github.com/users/dankogai>.
+C<$user> contains user information. If you set C<$auth->user_info> as
+a false value, authentication engine does not pass C<$user>.
 
-If you set C<< $auth->user_info >> as false value, authentication engine does not pass C<< $user >>.
+See L<eg/app.psgi> for details.
 
 =back
 
 =back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item * Hatena Auth Specification
+
+L<http://developer.hatena.ne.jp/ja/documents/auth>
+
+=back
+
+=head1 AUTHOR
+
+Kentaro Kuribayashi E<lt>kentarok@gmail.comE<gt>
+
+=head1 LICENSE
+
+Copyright (C) Kentaro Kuribayashi
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

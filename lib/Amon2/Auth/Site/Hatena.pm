@@ -5,7 +5,7 @@ use JSON;
 use OAuth::Lite::Token;
 use OAuth::Lite::Consumer;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has consumer_key => (
     is       => 'ro',
@@ -42,7 +42,6 @@ has ua => (
             site               => $_[0]->site,
             request_token_path => $_[0]->request_token_path,
             access_token_path  => $_[0]->access_token_path,
-            authorize_path     => $_[0]->authorize_path,
         );
     },
 );
@@ -65,10 +64,22 @@ has access_token_path => (
     default => '/oauth/token',
 );
 
-has authorize_path => (
+has authorize_url => (
     is      => 'ro',
     isa     => 'Str',
     default => 'https://www.hatena.ne.jp/oauth/authorize',
+);
+
+has authorize_url_touch => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => 'https://www.hatena.ne.jp/touch/oauth/authorize',
+);
+
+has authorize_url_mobile => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => 'http://www.hatena.ne.jp/mobile/oauth/authorize',
 );
 
 has user_info_url => (
@@ -87,6 +98,42 @@ __PACKAGE__->meta->make_immutable;
 
 sub moniker { 'hatena' }
 
+BEGIN {
+    eval { require 'HTTP::MobileAgent' };
+    if ($@) {
+        *is_mobile = sub { 0 }
+    }
+    else {
+        *is_mobile = sub {
+            my ($self, $c) = @_;
+            my $agent = HTTP::MobileAgent->new($c->req->headers);
+              !$agent->is_non_mobile;
+        }
+    }
+
+    eval { require 'HTTP::BrowserDetect' };
+    if ($@) {
+        *is_touch = sub { 0 }
+    }
+    else {
+        *is_touch = sub {
+            my ($self, $c) = @_;
+            my $detect = HTTP::BrowserDetect->new(
+                $c->req->env->{'HTTP_USER_AGENT'}
+            );
+            !!$detect->mobile;
+        }
+    }
+}
+
+sub detect_authorize_url_from {
+    my ($self, $c) = @_;
+    my $url = $self->authorize_url;
+       $url = $self->is_touch($c)  ? $self->authorize_url_touch  : $url;
+       $url = $self->is_mobile($c) ? $self->authorize_url_mobile : $url;
+       $url;
+}
+
 sub auth_uri {
     my ($self, $c, $callback_uri) = @_;
 
@@ -100,6 +147,7 @@ sub auth_uri {
         request_token_secret => $request_token->secret,
     });
 
+    $self->ua->{authorize_path} = $self->detect_authorize_url_from($c);
     $self->ua->url_to_authorize(token => $request_token);
 }
 
@@ -216,7 +264,8 @@ If true, this module fetch user data immediately after authentication.
 
 =item $auth->auth_uri($c:Amon2::Web, $callback_uri:Str) : Str
 
-Get a authenticate URI.
+Returns an authenticate URI according to C<$ENV{HTTP_USER_AGENT}>. It
+can be one of three for PC, smartphone, and JP cellphone.
 
 =item $auth->callback($c:Amon2::Web, $callback:HashRef) : Plack::Response
 

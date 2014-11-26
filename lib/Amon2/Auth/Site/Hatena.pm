@@ -4,6 +4,7 @@ use Mouse;
 use JSON;
 use OAuth::Lite::Token;
 use OAuth::Lite::Consumer;
+use Woothee;
 
 our $VERSION = '0.02';
 
@@ -98,40 +99,13 @@ __PACKAGE__->meta->make_immutable;
 
 sub moniker { 'hatena' }
 
-BEGIN {
-    eval { require 'HTTP::MobileAgent' };
-    if ($@) {
-        *is_mobile = sub { 0 }
-    }
-    else {
-        *is_mobile = sub {
-            my ($self, $c) = @_;
-            my $agent = HTTP::MobileAgent->new($c->req->headers);
-              !$agent->is_non_mobile;
-        }
-    }
-
-    eval { require 'HTTP::BrowserDetect' };
-    if ($@) {
-        *is_touch = sub { 0 }
-    }
-    else {
-        *is_touch = sub {
-            my ($self, $c) = @_;
-            my $detect = HTTP::BrowserDetect->new(
-                $c->req->env->{'HTTP_USER_AGENT'}
-            );
-            $detect->mobile;
-        }
-    }
-}
-
 sub detect_authorize_url_from {
     my ($self, $c) = @_;
-    my $url = $self->authorize_url;
-       $url = $self->is_touch($c)  ? $self->authorize_url_touch  : $url;
-       $url = $self->is_mobile($c) ? $self->authorize_url_mobile : $url;
-       $url;
+
+    my $category = Woothee->parse($c->req->env->{'HTTP_USER_AGENT'})->{category};
+    $category eq 'smartphone'  ? $self->authorize_url_touch  :
+    $category eq 'mobilephone' ? $self->authorize_url_mobile :
+                                 $self->authorize_url        ;
 }
 
 sub auth_uri {

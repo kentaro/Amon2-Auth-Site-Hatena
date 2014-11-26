@@ -1,5 +1,5 @@
 {
-   "abstract" : "Hatena auth integration for Amon2",
+   "abstract" : "Hatena authentication integration for Amon2",
    "author" : [
       "Kentaro Kuribayashi <kentarok@gmail.com>"
    ],
@@ -45,7 +45,8 @@
          "requires" : {
             "JSON" : "0",
             "Mouse" : "0",
-            "OAuth::Lite" : "0"
+            "OAuth::Lite" : "0",
+            "Woothee" : "0"
          }
       },
       "test" : {
@@ -66,6 +67,9 @@
          "web" : "https://github.com/kentaro/Amon2-Auth-Site-Hatena"
       }
    },
-   "version" : "0.02",
-   "x_authority" : "cpan:SONGMU"
+   "version" : "0.03",
+   "x_authority" : "cpan:SONGMU",
+   "x_contributors" : [
+      "Songmu <y.songmu@gmail.com>"
+   ]
 }

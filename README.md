@@ -1,6 +1,6 @@
 # NAME
 
-Amon2::Auth::Site::Hatena - Hatena auth integration for Amon2
+Amon2::Auth::Site::Hatena - Hatena authentication integration for Amon2
 
 # SYNOPSIS
 
@@ -47,7 +47,7 @@ users authenticate via Hatena OAuth API using this module.
 
 - consumer\_key (required)
 - comsumer\_secret (required)
-- scope (Default: \[qw(read\_public)\])
+- scope (Default: `[qw(read_public)]`)
 
     API scope in ArrayRef.
 
@@ -59,12 +59,12 @@ users authenticate via Hatena OAuth API using this module.
 
 # METHODS
 
-- $auth->auth\_uri($c:Amon2::Web, $callback\_uri:Str) : Str
+- `$auth->auth_uri($c:Amon2::Web, $callback_uri:Str)` : Str
 
     Returns an authenticate URI according to `$ENV{HTTP_USER_AGENT}`. It
-    can be one of three for PC, smartphone, and JP cellphone.
+    can be one of three for PC, smart phone, and JP cell phone.
 
-- $auth->callback($c:Amon2::Web, $callback:HashRef) : Plack::Response
+- `$auth->callback($c:Amon2::Web, $callback:HashRef)` : Plack::Response
 
     Process the authentication callback dispatching.
 

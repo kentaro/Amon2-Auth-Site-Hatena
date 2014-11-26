@@ -2,5 +2,12 @@ Revision history for Perl extension Amon2-Auth-Site-Hatena
 
 {{$NEXT}}
 
+0.03 2014-11-26T15:13:02Z
+
     - original version
 
+0.02     2011-10-19
+    - added smartphone, cellphone(jp) support.
+
+0.01     2011-10-18
+    - original version

@@ -6,7 +6,7 @@ use OAuth::Lite::Token;
 use OAuth::Lite::Consumer;
 use Woothee;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 has consumer_key => (
     is       => 'ro',
@@ -169,7 +169,7 @@ __END__
 
 =head1 NAME
 
-Amon2::Auth::Site::Hatena - Hatena auth integration for Amon2
+Amon2::Auth::Site::Hatena - Hatena authentication integration for Amon2
 
 =head1 SYNOPSIS
 
@@ -220,7 +220,7 @@ users authenticate via Hatena OAuth API using this module.
 
 =item comsumer_secret (required)
 
-=item scope (Default: [qw(read_public)])
+=item scope (Default: C<[qw(read_public)]>)
 
 API scope in ArrayRef.
 
@@ -236,12 +236,12 @@ If true, this module fetch user data immediately after authentication.
 
 =over 4
 
-=item $auth->auth_uri($c:Amon2::Web, $callback_uri:Str) : Str
+=item C<< $auth->auth_uri($c:Amon2::Web, $callback_uri:Str) >> : Str
 
 Returns an authenticate URI according to C<$ENV{HTTP_USER_AGENT}>. It
-can be one of three for PC, smartphone, and JP cellphone.
+can be one of three for PC, smart phone, and JP cell phone.
 
-=item $auth->callback($c:Amon2::Web, $callback:HashRef) : Plack::Response
+=item C<< $auth->callback($c:Amon2::Web, $callback:HashRef) >> : Plack::Response
 
 Process the authentication callback dispatching.
 

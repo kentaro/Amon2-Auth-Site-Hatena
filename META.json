@@ -1,0 +1,71 @@
+{
+   "abstract" : "Hatena auth integration for Amon2",
+   "author" : [
+      "Kentaro Kuribayashi <kentarok@gmail.com>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Minilla/v2.2.1, CPAN::Meta::Converter version 2.142060",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Amon2-Auth-Site-Hatena",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples",
+         "author",
+         "builder"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build::Tiny" : "0.035",
+            "perl" : "5.008_001"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.04",
+            "Test::Pod" : "1.41",
+            "Test::Spellunker" : "v0.2.7"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "JSON" : "0",
+            "Mouse" : "0",
+            "OAuth::Lite" : "0"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.98"
+         }
+      }
+   },
+   "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/kentaro/Amon2-Auth-Site-Hatena/issues"
+      },
+      "homepage" : "https://github.com/kentaro/Amon2-Auth-Site-Hatena",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/kentaro/Amon2-Auth-Site-Hatena.git",
+         "web" : "https://github.com/kentaro/Amon2-Auth-Site-Hatena"
+      }
+   },
+   "version" : "0.02",
+   "x_authority" : "cpan:SONGMU"
+}

@@ -121,7 +121,7 @@ BEGIN {
             my $detect = HTTP::BrowserDetect->new(
                 $c->req->env->{'HTTP_USER_AGENT'}
             );
-            !!$detect->mobile;
+            $detect->mobile;
         }
     }
 }
@@ -187,7 +187,7 @@ sub callback {
     $callback->{on_finished}->(@args);
 }
 
-!!1;
+1;
 
 __END__
 

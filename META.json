@@ -67,7 +67,7 @@
          "web" : "https://github.com/kentaro/Amon2-Auth-Site-Hatena"
       }
    },
-   "version" : "0.03",
+   "version" : "0.04",
    "x_authority" : "cpan:SONGMU",
    "x_contributors" : [
       "Songmu <y.songmu@gmail.com>"
